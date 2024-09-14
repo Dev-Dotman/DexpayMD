@@ -1,0 +1,405 @@
+:root {
+  --whatsapp-green: #311d00; /* WhatsApp green color */
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 0px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.login-form,
+.signup-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-form {
+  flex: 0 0 60%;
+  border-right: 1px solid #e0e0e0;
+}
+
+.signup-section {
+  flex: 0 0 40%;
+  background-color: #311d00;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.signup-content {
+  position: absolute;
+  z-index: 1;
+  width: 60%; /* Adjusted width */
+  left: 10%;
+}
+
+.signup-content .fancy-text {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.signup-content p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.signup-content .signup-btn {
+  background-color: #25d366;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.signup-content .signup-btn:hover {
+  background-color: #ff9800;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-weight: 500;
+  color: var(--whatsapp-green);
+}
+
+.signup-section h2 {
+  color: white;
+}
+
+.signup-section p {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.error-message {
+  color: red;
+  background-color: #ffe6e6;
+  border: 1px solid red;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.signup-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+      45deg,
+      transparent 49%,
+      rgba(255, 255, 255, 0.4) 49%,
+      rgba(255, 255, 255, 0.1) 51%,
+      transparent 51%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 49%,
+      rgba(255, 255, 255, 0.1) 49%,
+      rgba(255, 255, 255, 0.1) 51%,
+      transparent 51%
+    );
+  background-size: 50px 50px, 50px 50px;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.social-login {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.social-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+}
+
+.social-btn.fb {
+  background-color: var(--whatsapp-green);
+}
+
+.social-btn.google {
+  background-color: #25d366;
+}
+
+.social-btn.linkedin {
+  background-color: var(--whatsapp-green);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 70%; /* Adjusted width */
+  align-items: center;
+}
+
+input {
+  padding: 10px;
+  margin: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  width: 80%;
+  height: 25px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #2e1c013a;
+  color: white;
+  font-size: 16px;
+  margin: 20px;
+  transition: background-color 0.3s ease;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+}
+
+button:hover {
+  background-color: #311d00;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  transition: 0.3s ease;
+  position: relative;
+}
+
+.signup-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: white;
+  color: #311d00;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.signup-btn:hover {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #311d00;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.password-input-container {
+  width: 80%;
+}
+
+.icon {
+  position: absolute;
+  font-size: 40px;
+  opacity: 0.2;
+}
+
+.icon.whatsapp {
+  color: #25d366; /* WhatsApp green */
+}
+
+.icon.card {
+  color: #ff9800; /* Payment card color */
+}
+
+/* Media Queries for responsiveness */
+
+/* Tablets and larger */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column-reverse;
+    width: 80%;
+  }
+
+  .login-form {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    flex: 1;
+    width: 80%;
+  }
+
+  .signup-section {
+    flex: 1;
+    width: 80%;
+    padding: 20px;
+  }
+
+  .signup-content {
+    width: 80%;
+    left: 10%;
+  }
+
+  form {
+    width: 80%; /* Adjusted width */
+  }
+
+  .login-form {
+    width: 80%;
+    z-index: 100;
+    background-color: #ffffff;
+    margin-top: 100%;
+    position: absolute;
+    height: 100vh;
+    left: 0;
+  }
+
+  .password-input-container {
+    width: 90%;
+    display: flex;
+  }
+
+  .password-toggle-icon {
+    margin-top: 10%;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 768px) {
+  .login-page {
+    width: 100vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+  }
+
+  .login-container {
+    flex-direction: column;
+    width: 90%;
+  }
+
+  .login-form {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    flex: 1;
+    width: 80vw;
+    padding-left: 10px;
+  }
+
+  .login-form h2{
+    font-size: 30px;
+  }
+
+  .login-form form p{
+    font-size: 10px;
+  }
+
+  .signup-section {
+    display: none;
+  }
+
+  .signup-content {
+    width: 90%; /* Adjusted width */
+    left: 5%;
+  }
+
+  form {
+    width: 100%; /* Adjusted width */
+  }
+
+  form input {
+    font-size: 20px;
+  }
+
+  .login-form {
+    width: 100%;
+    z-index: 100;
+    background-color: #ffffff;
+    position: relative;
+    margin-top: 0;
+  }
+
+  .password-input-container {
+    width: 100%;
+    display: flex;
+  }
+
+  .password-toggle-icon {
+    margin-top: 10%;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 480px) {
+  .signup-content .fancy-text {
+    font-size: 2rem;
+  }
+
+  .signup-content p {
+    font-size: 1rem;
+  }
+
+  .signup-content .signup-btn {
+    font-size: 1rem;
+  }
+
+  .signup-content {
+    width: 95%; /* Adjusted width */
+    left: -2.5%;
+    font-size: 15px;
+  }
+
+  form {
+    width: 100%; /* Adjusted width */
+  }
+
+  .login-form {
+    width: 100%;
+    margin-left: -10px;
+    z-index: 100;
+    background-color: #ffffff;
+    position: relative;
+    margin-top: 0;
+  }
+
+  .password-input-container {
+    width: 100%;
+    display: flex;
+  }
+
+  .password-toggle-icon {
+    margin-top: 15%;
+  }
+}

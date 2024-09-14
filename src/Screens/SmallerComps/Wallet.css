@@ -1,0 +1,205 @@
+.wallet-container {
+    display: flex;
+    background-color: white;
+    height: 100vh;
+  }
+  
+  .wallet-content-container {
+    flex-grow: 1;
+    margin-left: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    position: absolute;
+    width: 80%;
+    right: 0;
+    z-index: 1;
+  }
+  
+  .wallet-paper {
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+  }
+  
+  .error-message {
+    color: red;
+  }
+  
+  .notification-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+  
+  .notification-box ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  .show-inputs-button,
+  .withdraw-button {
+    background-color: #388e3c;
+    color: #ffffff;
+    margin-top: 10px;
+  }
+  
+  .show-inputs-button:hover,
+  .withdraw-button:hover {
+    background-color: #2e7d32;
+  }
+  
+  .payment-info-grid {
+    margin-top: 20px;
+    z-index: 5;
+  }
+  
+  .wallet-button-primary {
+    background-color: #388e3c;
+    color: #ffffff;
+    z-index: 5;
+  }
+  
+  .wallet-button-primary:hover {
+    background-color: #031d1a !important;
+    color: #ffffff;
+  }
+  
+  .balance-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #388e3c;
+  }
+  
+  .wallet-content-container {
+    background-color: #f4f4f9;
+  }
+  
+  .wallet-paper {
+    background-color: #fff;
+    border-radius: 10px;
+  }
+  
+  .show-inputs-button {
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: #f44336;
+    font-size: 14px;
+  }
+  
+  .dashboard-main2 {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    gap: 20px;
+    padding: 80px 20px 20px 20px; /* Adjust padding to accommodate the fixed header */
+    width: 100%;
+  }
+  
+  .payment-details {
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #031d1a;
+  }
+  
+  .actions-section {
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Adjust width as needed */
+  }
+  
+  .notification-box {
+    padding: 20px;
+    border: 1px solid #031d1a;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #031d1a;
+    margin-top: 10px;
+    height: 300px; /* Adjust height as needed */
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1200px) {
+    .wallet-content-container {
+      width: 100%;
+      padding: 15px;
+    }
+  
+    .dashboard-main2 {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .wallet-container {
+      flex-direction: column;
+      height: auto;
+    }
+  
+    .wallet-content-container {
+      width: 100%;
+      position: static;
+      margin-left: 0;
+    }
+  
+    .dashboard-main2 {
+      padding: 60px 10px 10px 10px;
+    }
+  
+    .payment-details,
+    .actions-section {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .wallet-content-container {
+      padding: 10px;
+    }
+  
+    .dashboard-main2 {
+      padding: 60px 5px 5px 5px;
+      gap: 10px;
+    }
+  
+    .wallet-paper {
+      padding: 10px;
+    }
+  
+    .show-inputs-button,
+    .withdraw-button {
+      margin-top: 10px;
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .wallet-content-container {
+      padding: 5px;
+    }
+  
+    .dashboard-main2 {
+      padding: 40px 5px 5px 5px;
+      gap: 5px;
+    }
+  
+    .wallet-paper {
+      padding: 10px;
+    }
+  
+    .show-inputs-button,
+    .withdraw-button {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+  }
+  

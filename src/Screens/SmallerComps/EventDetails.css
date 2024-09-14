@@ -1,0 +1,156 @@
+.event-details-background {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+  
+  .event-details-paper {
+    position: relative;
+    width: 90%;
+    max-width: 80%;
+    padding: 40px;
+    background-color: #fff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+  
+  .back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+  
+  .event-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .event-cover-photo {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+  
+  .event-dates-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+  
+  .event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 200px;
+  }
+  
+  .event-date-label {
+    font-weight: bold;
+  }
+  
+  .event-info {
+    margin-top: 20px;
+  }
+  
+  .event-info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .event-info-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: left;
+  }
+  
+  .event-info-table a {
+    color: #1a73e8;
+    text-decoration: none;
+  }
+  
+  .event-info-table a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1200px) {
+    .event-details-paper {
+      width: 95%;
+      padding: 30px;
+    }
+  
+    .event-date {
+      width: 180px;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .event-details-background {
+      padding: 20px;
+    }
+  
+    .event-details-paper {
+      width: 100%;
+      padding: 20px;
+    }
+  
+    .event-dates-container {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .event-date {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .event-details-background {
+      padding: 10px;
+    }
+  
+    .event-details-paper {
+      padding: 15px;
+    }
+  
+    .event-info-table td {
+      padding: 6px;
+    }
+  
+    .event-date {
+      width: 90%;
+      padding: 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .event-details-background {
+      padding: 5px;
+    }
+  
+    .event-details-paper {
+      padding: 10px;
+    }
+  
+    .event-info-table td {
+      padding: 4px;
+    }
+  
+    .event-date {
+      width: 80%;
+      padding: 5px;
+    }
+  }
+  
