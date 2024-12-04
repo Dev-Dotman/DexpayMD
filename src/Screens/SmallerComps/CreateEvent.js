@@ -1,562 +1,269 @@
-import React, { useState, useEffect } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  CssBaseline,
-  MenuItem,
-  Grid,
-  Typography,
-  Paper,
-  LinearProgress,
-} from "@mui/material";
-import Calendar from "react-calendar";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
-import { useNavigate, useLocation } from "react-router-dom";
 import "./CreateEvent.css";
 import IpAddress from "../../Config/IpAddress";
-import { fetchWithAuth } from '../../Services/fetchHelper'
+import { fetchWithAuth } from "../../Services/fetchHelper";
+import { AuthContext } from "../../Contexts/AuthProvider";
 
-const categories = ["Technology", "Science", "Mathematics", "Arts", "Business"];
+const supportedCurrencies = ["SOL"];
 
-const CreateEvent = () => {
-  const location = useLocation();
-  const { user } = location.state || {};
-  const ip = IpAddress.ip;
+const CreatePayment = () => {
   const navigate = useNavigate();
-  const [courseTitle, setCourseTitle] = useState("");
-  const [whatsappLink, setWhatsappLink] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
-  const [courseCategory, setCourseCategory] = useState("");
-  const [courseDuration, setCourseDuration] = useState("");
-  const [eventDate, setEventDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
-  const [classSchedule, setClassSchedule] = useState("");
-  const [prerequisites, setPrerequisites] = useState("");
-  const [coverPhoto, setCoverPhoto] = useState(null);
-  const [courseFee, setCourseFee] = useState("");
-  const [maxEnrolment, setMaxEnrolment] = useState("");
-  const [joiningDeadline, setJoiningDeadline] = useState(new Date());
-  const [extraNotes, setExtraNotes] = useState("");
+  const ip = IpAddress.ip;
+  const { user } = useContext(AuthContext);
+
+  // Define state for form inputs
+  const [amountFiat, setAmountFiat] = useState("");
+  const [amountCrypto, setAmountCrypto] = useState("");
+  const [currency, setCurrency] = useState(supportedCurrencies[0]); // Default to SOL
+  const [walletAddress, setWalletAddress] = useState("");
+  const [payerEmail, setPayerEmail] = useState("");
+  const [description, setDescription] = useState("");
+  const [linkName, setLinkName] = useState(""); // New state for link name
   const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false); // Add loading state
-  const [emailVerified, setEmailVerified] = useState(
-    user.emailVerified || false
-  );
-  const [verificationData, setVerificationData] = useState(null);
-  const [currentSection, setCurrentSection] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [cryptoRates, setCryptoRates] = useState({ SOL: 0, USDC: 0 }); // State for crypto rates
+  const [nairaRate, setNairaRate] = useState(0); // State for Naira rate
 
-  const totalSections = 4;
-  const progress = (currentSection / totalSections) * 100;
-
-  const validateCurrentSection = () => {
-    switch (currentSection) {
-      case 1:
-        return (
-          courseTitle &&
-          whatsappLink &&
-          courseDescription &&
-          courseCategory &&
-          courseDuration
-        );
-      case 2:
-        return eventDate && endDate;
-      case 3:
-        return classSchedule && prerequisites && coverPhoto && courseFee;
-      case 4:
-        return maxEnrolment && joiningDeadline && extraNotes;
-      default:
-        return false;
-    }
-  };
-
-  const handleNext = () => {
-    if (validateCurrentSection()) {
-      setErr("");
-      setCurrentSection(currentSection + 1);
-    } else {
-      setErr("Please fill in all required fields.");
-    }
-  };
-
+  // Fetch live crypto rates and Naira rate when the component mounts and every minute
   useEffect(() => {
-    const fetchVerificationData = async () => {
-      const url = `${ip}/verification`; // Replace with your actual backend endpoint
-
+    const fetchRates = async () => {
       try {
-        const response = await fetchWithAuth(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: user.email }), // Ensure correct format
+        const cryptoResponse = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=solana,usd-coin&vs_currencies=usd"
+        );
+        const cryptoData = await cryptoResponse.json();
+        setCryptoRates({
+          SOL: cryptoData.solana.usd,
+          USDC: cryptoData["usd-coin"].usd,
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setVerificationData(data);
-        setEmailVerified(data.isEmailVerified);
+        const nairaResponse = await fetch(
+          "https://api.exchangerate-api.com/v4/latest/USD"
+        ); // Example Naira rate API
+        const nairaData = await nairaResponse.json();
+        setNairaRate(nairaData.rates.NGN); // Set Naira rate
       } catch (error) {
-        console.error("Error fetching verification data:", error.message);
-        // Handle error, e.g., show an error message to the user
+        console.error("Error fetching rates:", error);
       }
     };
 
-    fetchVerificationData();
-  }, [user.email]); // Dependency array, this useEffect will run when email changes
+    fetchRates(); // Initial fetch
+    const interval = setInterval(fetchRates, 60000); // Fetch every minute
 
-  const handleFileChange = (e) => {
-    setCoverPhoto(e.target.files[0]);
+    return () => clearInterval(interval); // Clean up interval on unmount
+  }, []);
+
+  // Handle amount change for Fiat
+  const handleFiatChange = (value) => {
+    setAmountFiat(value);
+    const convertedAmount = (
+      value /
+      (cryptoRates[currency] * nairaRate)
+    ).toFixed(6); // Convert to crypto
+    setAmountCrypto(convertedAmount);
   };
 
-  const handleCreateEvent = async (e) => {
+  // Handle amount change for Crypto
+  const handleCryptoChange = (value) => {
+    setAmountCrypto(value);
+    const convertedAmount = (
+      value *
+      (cryptoRates[currency] * nairaRate)
+    ).toFixed(2); // Convert to fiat
+    setAmountFiat(convertedAmount);
+  };
+
+  // Validate Solana wallet address (simplified check)
+  const isValidSolanaAddress = (address) => {
+    return address.length === 44; // Basic check for length of Solana wallet address
+  };
+
+  const minAmountUSDC = 1; // Minimum amount for USDC
+
+  // Function to calculate dynamic minimum for SOL based on current price and estimated gas fee
+  const calculateMinAmountSOL = () => {
+    const gasFeeEstimate = 0.0005; // Hypothetical gas fee in SOL
+    const minSOL = Math.max(0.01, gasFeeEstimate); // Minimum is 0.01 SOL or gas fee equivalent
+    return minSOL;
+  };
+
+  // Handle form submission
+  const handleCreatePayment = async (e) => {
     e.preventDefault();
 
+    const minAmountSOL = calculateMinAmountSOL();
     // Validate inputs
     if (
-      !courseTitle ||
-      !whatsappLink ||
-      !courseDescription ||
-      !courseCategory ||
-      !courseDuration ||
-      !classSchedule ||
-      !prerequisites ||
-      !coverPhoto ||
-      !courseFee ||
-      !maxEnrolment ||
-      !joiningDeadline
+      !amountFiat ||
+      !amountCrypto ||
+      !currency ||
+      !walletAddress ||
+      !linkName // Check for link name
     ) {
       setErr("Please fill in all required fields.");
       return;
     }
-
-    if (!emailVerified) {
-      setErr("Please Verify Your Email First Before Creating A Module.");
-      alert("Please Verify Your Email First Before Creating A Module.");
+    if (currency === "USDC" && parseFloat(amountCrypto) < minAmountUSDC) {
+      setErr(`Minimum transaction amount for USDC is ${minAmountUSDC} USDC.`);
       return;
     }
 
-    if (courseFee !== "free" && courseFee !== "none") {
-      if (
-        user.BankAccountNo === "None" ||
-        user.BankAccountName === "None" ||
-        user.BankName === "None"
-      ) {
-        setErr(
-          "No Payment Info. \n Create a payment mode to create a new class. \n You can do this in the payment information tab."
-        );
-        return;
-      }
+    if (currency === "SOL" && parseFloat(amountCrypto) < minAmountSOL) {
+      setErr(`Minimum transaction amount for SOL is ${minAmountSOL} SOL.`);
+      return;
+    }
+
+    // Existing validation for Solana wallet address
+    if (!isValidSolanaAddress(walletAddress)) {
+      setErr("Please enter a valid Solana wallet address.");
+      return;
     }
 
     try {
       setLoading(true);
-      const formData = new FormData();
-      formData.append("creator", `${user.firstName} ${user.lastName}`);
-      formData.append("creatorEmail", user.email);
-      formData.append("courseTitle", courseTitle);
-      formData.append("eventDate", eventDate.toISOString());
-      formData.append("whatsappLink", whatsappLink);
-      formData.append("courseDescription", courseDescription);
-      formData.append("courseCategory", courseCategory);
-      formData.append("courseDuration", courseDuration);
-      formData.append("endDate", endDate.toISOString());
-      formData.append("classSchedule", classSchedule);
-      formData.append("prerequisites", prerequisites);
-      formData.append("coverPhoto", coverPhoto);
-      formData.append("courseFee", courseFee);
-      formData.append("maxEnrolment", maxEnrolment);
-      formData.append("joiningDeadline", joiningDeadline.toISOString());
-      formData.append("extraNotes", extraNotes);
 
-      // Add bank details to the formData
-      formData.append("bankName", user.BankName);
-      formData.append("bankCode", user.BankCode);
-      formData.append("bankAccountNo", user.BankAccountNo);
-      formData.append("bankAccountName", user.BankAccountName);
+      const formData = {
+        merchant_email: user.email,
+        merchant_id: user.id,
+        amount_fiat: parseFloat(amountFiat),
+        amount_crypto: parseFloat(amountCrypto),
+        currency,
+        wallet_address: walletAddress,
+        description,
+        link_name: linkName, // Add link name to formData
+        status: "Pending",
+      };
 
-      const response = await fetchWithAuth(`${ip}/events`, {
+      const response = await fetchWithAuth(`${ip}/createPayment`, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert("Event Created:", data);
-        navigate("/manageevent", { state: { user: user } });
+        alert("Payment request created successfully on Solana network!");
+        navigate("/manageevent");
       } else {
-        alert("Creation failed:", data);
+        setErr("Failed to create payment request.");
       }
     } catch (error) {
-      alert(error);
+      setErr("An error occurred: " + error.message);
     } finally {
-      setLoading(false); // End loading
-    }
-  };
-
-  const renderSection = () => {
-    switch (currentSection) {
-      case 1:
-        return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Course Title"
-                value={courseTitle}
-                onChange={(e) => setCourseTitle(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Group Link"
-                value={whatsappLink}
-                onChange={(e) => setWhatsappLink(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Course Description"
-                value={courseDescription}
-                onChange={(e) => setCourseDescription(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                multiline
-                rows={4}
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Course Category"
-                select
-                value={courseCategory}
-                onChange={(e) => setCourseCategory(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category} value={category}>
-                    {category}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Course Duration"
-                value={courseDuration}
-                onChange={(e) => setCourseDuration(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-          </Grid>
-        );
-      case 2:
-        return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Box
-                sx={{
-                  backgroundColor: "transparent",
-                  padding: 0,
-                  borderRadius: 1,
-                  marginBottom: 2,
-                  zIndex: "400",
-                }}
-              >
-                <Typography variant="h6">Start Date</Typography>
-                <Calendar
-                  value={eventDate}
-                  onChange={setEventDate}
-                  className="react-calendar"
-                />
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  sx={{
-                    color: "white",
-                  }}
-                >
-                  Selected Start Date: {eventDate.toDateString()}
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box
-                sx={{
-                  backgroundColor: "transparent",
-                  padding: 0,
-                  borderRadius: 1,
-                  marginBottom: 2,
-                }}
-              >
-                <Typography variant="h6">End Date</Typography>
-                <Calendar
-                  value={endDate}
-                  onChange={setEndDate}
-                  className="react-calendar"
-                />
-                <Typography
-                  variant="body2"
-                  color="textSecondary"
-                  sx={{
-                    color: "white",
-                  }}
-                >
-                  Selected End Date: {endDate.toDateString()}
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        );
-      case 3:
-        return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Class Schedule"
-                value={classSchedule}
-                onChange={(e) => setClassSchedule(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Prerequisites"
-                value={prerequisites}
-                onChange={(e) => setPrerequisites(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h6" sx={{
-                color: '#311d00'
-              }}>Upload cover photo</Typography>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept="image/*"
-                className="coverPhoto"
-                style={{
-                  marginTop: "16px",
-                  marginBottom: "8px",
-                  zIndex: 10,
-                  borderWidth: 2,
-                  borderColor: "#273532",
-                  height: "auto",
-                }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                type="number"
-                label="Course Fee"
-                value={courseFee}
-                onChange={(e) => setCourseFee(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-          </Grid>
-        );
-      case 4:
-        return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Maximum Enrolment Limit"
-                value={maxEnrolment}
-                onChange={(e) => setMaxEnrolment(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Joining Deadline"
-                type="date"
-                value={joiningDeadline.toISOString().substr(0, 10)}
-                onChange={(e) => setJoiningDeadline(new Date(e.target.value))}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{
-                  shrink: true,
-                  style: { color: "#1e1e1e" },
-                }}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Extra Notes"
-                value={extraNotes}
-                onChange={(e) => setExtraNotes(e.target.value)}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-                multiline
-                rows={4}
-                InputLabelProps={{ style: { color: "#1e1e1e" } }}
-                required
-              />
-            </Grid>
-            <Grid item lg={12}>
-              <Button
-                onClick={handleCreateEvent}
-                sx={{
-                  borderWidth: 2,
-                  borderColor: "#311d00 !important",
-                  color: "white",
-                  zIndex: 200,
-                  cursor: 'pointer'
-                }}
-                className="createEventbtn"
-              >
-                Create Event
-              </Button>
-            </Grid>
-          </Grid>
-        );
-      default:
-        return null;
+      setLoading(false);
     }
   };
 
   return (
-    <>
-      <CssBaseline />
-      <Box className="dashboard-container">
-        {loading && (
-          <div className="loading-overlay">
-            <div className="backg">
-              <div className="spinner"></div>
-            </div>
+    <div className="dashboard-container">
+      {loading && (
+        <div className="loading-overlay">
+          <div className="backg">
+            <div className="spinner"></div>
           </div>
-        )}
-        <Sidebar
-          data={{
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            nickname: user.nickname,
-            contact: user.contact,
-            imagePath: user.imagePath,
-            BankName: user.BankName,
-            BankAccountNo: user.BankAccountNo,
-            BankAccountName: user.BankAccountName,
-            BankCode: user.BankCode,
-          }}
-        />
-        <Box className="create-event-container">
-          <Paper
-            elevation={3}
-            sx={{ padding: 4, borderRadius: 2, boxShadow: 0 , color: '#031d1a'}}
-          >
-            <Box sx={{ width: "100%", marginBottom: 2 }}>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{
-                  "& .MuiLinearProgress-barColorPrimary": {
-                    backgroundColor: "#ff9900", // Change this to your desired color
-                  },
-                  backgroundColor: "#e0e0e0", // Change this to the track color if needed
-                }}
-              />
-            </Box>
-            <h2 variant="h4"  align="center" style={{
-              color: '#031d1a'
-            }}>
-              Create Module
-            </h2>
-            <h5
-              variant="h6"
-              gutterBottom
-              align="center"
-              style={{
-                fontSize: "15px",
-                color: '#031d1a'
-              }}
+        </div>
+      )}
+      <Sidebar />
+      <div className="create-payment-container">
+        <h2 style={{
+          color: "white",
+          marginTop: 40
+        }}>Generate a payment link</h2>
+        {err && <p className="error-message">{err}</p>}
+
+        <div className="payment-form">
+          <div className="form-group">
+            <label>Link Name</label>
+            <input
+              type="text"
+              value={linkName}
+              onChange={(e) => setLinkName(e.target.value)}
+              placeholder="Enter a name for the payment link"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Currency (Solana Supported)</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              required
             >
-              NB: Please make sure your email is verified and your payment
-              details are dully updated
-            </h5>
-            {err && <p className="error-message">{err}</p>}
-            {renderSection()}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 3,
-              }}
-            >
-              {currentSection > 1 && (
-                <button
-                  onClick={() => setCurrentSection(currentSection - 1)}
-                  className="nextButton"
-                >
-                  Previous
-                </button>
-              )}
-              {currentSection < 4 && (
-                <button
-                  variant="contained"
-                  onClick={handleNext}
-                  className="nextButton"
-                  style={{
-                    position: { xs: "relative", md: "absolute" },
-                    right: { xs: "0", md: 70 },
-                    color: "white",
-                    backgroundColor: '#311d00'
-                  }}
-                >
-                  Next
-                </button>
-              )}
-            </Box>
-          </Paper>
-        </Box>
-      </Box>
-    </>
+              {supportedCurrencies.map((currencyOption, index) => (
+                <option key={index} value={currencyOption}>
+                  {currencyOption}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <p style={{ color: "#888888" }}>
+              Current {currency} Price: {cryptoRates[currency]} USD
+            </p>
+            <p style={{ color: "#888888" }}>
+              Current {currency} Price in Naira:{" "}
+              {(cryptoRates[currency] * nairaRate).toFixed(2)} NGN
+            </p>
+          </div>
+
+          <div className="form-group">
+            <label>Amount (Fiat)</label>
+            <input
+              type="number"
+              value={amountFiat}
+              onChange={(e) => handleFiatChange(e.target.value)}
+              placeholder="Enter fiat amount"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Amount (Crypto)</label>
+            <input
+              type="number"
+              value={amountCrypto}
+              onChange={(e) => handleCryptoChange(e.target.value)}
+              placeholder="Enter crypto amount"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Wallet Address (Solana)</label>
+            <input
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="Enter your Solana wallet address"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Description (Optional)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter payment description"
+            ></textarea>
+          </div>
+        </div>
+        <div className="create-btn">
+          <button type="button" onClick={handleCreatePayment} style={{
+            backgroundColor: "rgba(0,0,0,0.3)",
+            color: "white"
+          }}>
+            Generate Payment link
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export { CreateEvent };
+export { CreatePayment };

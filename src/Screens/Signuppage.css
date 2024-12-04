@@ -1,5 +1,9 @@
 :root {
-  --whatsapp-green: #128c7e; /* WhatsApp green color */
+  --black: #0d0d0d;
+  --green: #00ff00;
+  --white: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --highlight: rgba(0, 255, 0, 0.2);
 }
 
 body,
@@ -15,7 +19,7 @@ html {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f2f5;
+  background-color: #1e1e2e;
 }
 
 .signup-container {
@@ -23,9 +27,10 @@ html {
   width: 100%;
   max-width: 100%;
   height: 100vh;
-  border-radius: 0;
+  box-shadow: 0 4px 8px var(--shadow);
+  border-radius: 12px;
   overflow: hidden;
-  background-color: white;
+  background-color: #1e1e2e;
 }
 
 .signup-form,
@@ -39,46 +44,55 @@ html {
 
 .signup-form {
   flex: 0 0 60%;
-  border-right: 1px solid #e0e0e0;
+  background: linear-gradient(145deg, #1e1e2e 0%, #1e1e2e 100%);
+  box-shadow: 0 4px 8px var(--shadow), 0 -4px 8px rgba(0, 0, 0, 0.1) inset;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
   overflow-y: auto;
+}
+
+.signup-form:hover {
+  box-shadow: 0 8px 16px var(--shadow), 0 -8px 16px rgba(0, 0, 0, 0.1) inset;
+  transform: scale(1.02);
 }
 
 .info-section {
   flex: 0 0 40%;
-  background-color: #311d00;
-  color: white;
+  background-color: var(--black);
+  color: var(--white);
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(145deg, var(--black) 0%, #1e1e2e 100%);
+  box-shadow: 0 4px 8px var(--shadow);
 }
 
 .info-content {
   position: absolute;
   z-index: 1;
-  width: 60%; /* Adjusted width */
+  width: 60%;
   left: 10%;
 }
 
 .info-content .fancy-text {
   font-size: 2.5rem;
-  color: white;
+  color: var(--white);
   margin-bottom: 10px;
 }
 
 .info-content p {
   font-size: 1.2rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 h2 {
   margin-bottom: 20px;
   font-weight: 500;
-  color: var(--whatsapp-green);
+  color: var(--green);
 }
 
 .info-section h2 {
-  color: white;
+  color: var(--white);
 }
 
 .info-section p {
@@ -96,15 +110,15 @@ h2 {
   background: linear-gradient(
       45deg,
       transparent 49%,
-      rgba(255, 255, 255, 0.4) 49%,
-      rgba(255, 255, 255, 0.1) 51%,
+      var(--highlight) 49%,
+      var(--highlight) 51%,
       transparent 51%
     ),
     linear-gradient(
       45deg,
       transparent 49%,
-      rgba(255, 255, 255, 0.1) 49%,
-      rgba(255, 255, 255, 0.1) 51%,
+      var(--highlight) 49%,
+      var(--highlight) 51%,
       transparent 51%
     );
   background-size: 50px 50px, 50px 50px;
@@ -121,82 +135,62 @@ h2 {
 .social-btn {
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  color: white;
+  color: var(--white);
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .social-btn.fb {
-  background-color: var(--whatsapp-green);
+  background-color: var(--green);
 }
 
 .social-btn.google {
-  background-color: #25d366;
+  background-color: #00cc00;
 }
 
 .social-btn.linkedin {
-  background-color: var(--whatsapp-green);
+  background-color: var(--green);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  width: 70%; /* Adjusted width */
+  width: 70%;
   align-items: center;
 }
 
 input {
-  padding: 15px;
+  padding: 10px;
   margin: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
+  border-radius: 8px;
   width: 80%;
+  height: 25px;
+  background-color: #2a2a3b;
+  color: var(--white);
+  box-shadow: inset 0 2px 4px var(--shadow);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  border: none;
+}
+
+input:focus {
+  background-color: #333;
+  box-shadow: 0 0 8px var(--green);
+  outline: none;
 }
 
 button {
   padding: 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  background-color: #311d00;
-  color: white;
+  background-color: #50fa7b;
+  color: var(--black);
   font-size: 16px;
-  margin: 10px;
-  transition: background-color 0.3s ease;
+  margin: 20px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
   padding: 10px 20px;
   font-size: 1.2rem;
-}
-
-button:hover {
-  background-color: #311d00;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  transition: 0.3s ease;
-  position: relative;
-  color: white;
-}
-
-.loginbtn {
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: white;
-  color: #311d0088;
-  font-size: 16px;
-  margin: 10px;
-  transition: background-color 0.3s ease;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-}
-
-.loginbtn:hover {
-  background-color: #311d00;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  transition: 0.3s ease;
-  position: relative;
-  color: white;
 }
 
 .profile-pic-container {
@@ -225,27 +219,6 @@ button:hover {
   color: #e0e0e0;
 }
 
-.icon {
-  position: absolute;
-  font-size: 40px;
-  opacity: 0.2;
-}
-
-.icon.whatsapp {
-  color: #25d366; /* WhatsApp green */
-}
-
-.icon.card {
-  color: #ff9800; /* Payment card color */
-}
-
-.password-input-container{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 90%;
-}
-
 .terms-and-conditions {
   display: flex;
   align-items: center;
@@ -261,6 +234,7 @@ button:hover {
 
 .terms-and-conditions p {
   margin: 0;
+  color: #888888;
 }
 
 .terms-and-conditions a {
@@ -268,7 +242,13 @@ button:hover {
   text-decoration: underline;
 }
 
+button:hover {
+  background-color: #00cc00;
+  transform: scale(1.05);
+}
+
 /* Media Queries for responsiveness */
+
 @media (max-width: 1024px) {
   .signup-container {
     flex-direction: column;
@@ -277,18 +257,18 @@ button:hover {
 
   .signup-form {
     border-right: none;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--white);
     flex: 1;
     width: 100%;
     padding: 20px;
   }
 
   .info-section {
-    display: none; /* Hide info section on tablets and smaller screens */
+    display: none;
   }
 
   form {
-    width: 90%; /* Adjusted width */
+    width: 90%;
   }
 
   .profile-pic {
@@ -297,46 +277,28 @@ button:hover {
   }
 }
 
-/* Mobile Devices */
 @media (max-width: 768px) {
-  .signup-container {
-    flex-direction: column;
-    width: 100%;
-  }
-
   .signup-form {
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-    flex: 1;
-    width: 100%;
-    padding: 20px;
-    margin-left: -12px;
-    overflow-x: hidden;
+    width: 90%;
+    padding: 10px;
+    margin: 0 auto;
+    height: max-content;
+    max-height: max-content;
   }
+  
+  .signup-form .form {
+    width: 95%;
+    text-align: center;
+    height: max-content;
+  } 
 
-  .signup-form h2{
-   padding-top: 80px;
-  }
-
-  form {
-    width: 90%; /* Adjusted width */
-  }
-
-  .profile-pic {
-    width: 80px;
-    height: 80px;
-  }
-
-  .loginbtn {
+  .signup-form .form input {
+    height: 30px;
     font-size: 15px;
-  }
-
-  .loginbtn:hover {
-    font-size: 15px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
 }
 
-/* Small Mobile Devices */
 @media (max-width: 480px) {
   .info-content .fancy-text {
     font-size: 2rem;
@@ -344,33 +306,5 @@ button:hover {
 
   .info-content p {
     font-size: 1rem;
-  }
-
-  .info-content .signup-btn {
-    font-size: 1rem;
-  }
-
-  .info-content {
-    width: 100%; /* Adjusted width */
-    left: 2.5%;
-  }
-
-  .profile-pic-container {
-    width: 100%;
-  }
-
-  .profile-pic {
-    width: 60vw;
-    height: 30vh;
-  }
-
-  form {
-    width: 100%; /* Adjusted width */
-    text-align: center;
-    padding: 10px;
-  }
-
-  .signup-form {
-    padding: 10px;
   }
 }

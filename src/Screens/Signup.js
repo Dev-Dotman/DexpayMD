@@ -5,6 +5,7 @@ import { IoLogoWhatsapp, IoCard } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import IpAddress from "../Config/IpAddress";
 import { fetchWithAuth } from "../Services/fetchHelper";
+import crypto from "../images/undraw_authentication_re_svpt.svg";
 
 const Signup = () => {
   const [profilePic, setProfilePic] = useState(null);
@@ -104,6 +105,10 @@ const Signup = () => {
     formData.append("nickname", nickname);
     formData.append("password", password);
 
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
+    }
+
     try {
       const response = await fetchWithAuth(`${ip}/signup`, {
         method: "POST",
@@ -146,8 +151,8 @@ const Signup = () => {
       <div className="signup-container">
         {currentStep === 1 && (
           <div className="signup-form">
-            <h2 style={{ fontWeight: "800", color: "#311d0088" }}>Welcome!</h2>
-            <h3 style={{ fontWeight: "600", color: "#311d0088" }}>
+            <h2 style={{ fontWeight: "800", color: "white" }}>Welcome!</h2>
+            <h3 style={{ fontWeight: "600", color: "white" }}>
               Let's set up your profile
             </h3>
             {err && <p className="error-message">{err}</p>}
@@ -196,29 +201,36 @@ const Signup = () => {
                   required
                 />
                 <span
-                  // className="password-toggle-icon"
+                  className="password-toggle-icon"
                   onClick={togglePasswordVisibility}
                 >
-                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                  {passwordVisible ? <FaEyeSlash  color="white"/> : <FaEye color="white"/>}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
                 style={{
-                  backgroundColor: "#311d00",
+                  backgroundColor: "#0d0d0d",
                   width: "50%",
                   borderRadius: "10px",
+                  color: "white"
                 }}
               >
                 Next
+              </button>
+              <button
+                className="signup-btn"
+                onClick={() => navigate("/login")}
+              >
+                Already have an account?
               </button>
             </form>
           </div>
         )}
         {currentStep === 2 && (
           <div className="signup-form">
-            <h2 style={{ fontWeight: "800", color: "#311d0088" }}>
+            <h2 style={{ fontWeight: "800", color: "white" }}>
               Profile Picture
             </h2>
             <div className="profile-pic-container2">
@@ -229,10 +241,10 @@ const Signup = () => {
                     backgroundImage: `url(${
                       profilePic2 || "path/to/default/avatar.png"
                     })`,
-                    borderColor: profilePic2 ? "#311d00" : "#311d0088",
+                    borderColor: profilePic2 ? "#00ff00" : "white",
                   }}
                 >
-                  {!profilePic2 && <FaCamera />}
+                  {!profilePic2 && <FaCamera color="#273532"/>}
                 </div>
               </label>
               <input
@@ -251,8 +263,8 @@ const Signup = () => {
                   checked={termsAccepted}
                   onChange={() => setTermsAccepted(!termsAccepted)}
                   style={{
-                    height: "50px",
-                    width: "50px",
+                    height: "30px",
+                    width: "30px",
                   }}
                 />
                 <p>
@@ -265,9 +277,10 @@ const Signup = () => {
                 type="button"
                 onClick={() => setCurrentStep(1)}
                 style={{
-                  backgroundColor: "#311d00",
+                  backgroundColor: "#0d0d0d",
                   width: "50%",
                   borderRadius: "10px",
+                  color: "white"
                 }}
               >
                 Previous
@@ -275,9 +288,10 @@ const Signup = () => {
               <button
                 type="submit"
                 style={{
-                  backgroundColor: "#311d00",
+                  backgroundColor: "#0d0d0d",
                   width: "50%",
                   borderRadius: "10px",
+                  color: "white"
                 }}
               >
                 Sign Up
@@ -292,20 +306,9 @@ const Signup = () => {
           </div>
         )}
         <div className="info-section">
-          <div className="info-content">
-            <h2 className="fancy-text">Join Us Today!</h2>
-            <p>Manage payments for your WhatsApp tutorials with ease.</p>
-            <p>Deliver quality content while we handle the logistics.</p>
+          <div className="signup-content">
+            <img src={crypto} className="crypto" />
           </div>
-          {positions.map((pos, index) => (
-            <div
-              key={index}
-              className={`icon ${pos.type}`}
-              style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
-            >
-              {pos.type === "whatsapp" ? <IoLogoWhatsapp /> : <IoCard />}
-            </div>
-          ))}
         </div>
       </div>
     </div>

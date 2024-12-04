@@ -19,12 +19,13 @@ import {
   Close,
   Menu as MenuIcon,
   BubbleChart,
+  MoneyOff
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 import { AuthContext } from "../../Contexts/AuthProvider";
 
-const Sidebar = ({ data }) => {
+const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
@@ -77,13 +78,13 @@ const Sidebar = ({ data }) => {
       <Box className={`sidebar-container ${isOpen ? "open" : ""}`}>
         <Box className="sidebar-header">
           <Typography variant="h6">
-            WHATFLOW <BubbleChart sx={{ color: "white" }} />
+            DEXPAY <MoneyOff sx={{ color: "white" }} />
           </Typography>
         </Box>
         <List>
           <ListItem
             button
-            onClick={() => navigate("/", { state: { user: user } })}
+            onClick={() => navigate("/")}
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
               <Dashboard />
@@ -93,7 +94,7 @@ const Sidebar = ({ data }) => {
           <Divider sx={{ width: "80%" }} />
           <ListItem
             button
-            onClick={() => navigate("/createevent", { state: { user: user } })}
+            onClick={() => navigate("/createevent")}
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
               <Event />
@@ -102,17 +103,17 @@ const Sidebar = ({ data }) => {
           </ListItem>
           <ListItem
             button
-            onClick={() => navigate("/manageevent", { state: { user: user } })}
+            onClick={() => navigate("/manageevent")}
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
               <Event />
             </ListItemIcon>
             <ListItemText primary="Manage Modules" />
           </ListItem>
-          <ListItem
+          {/* <ListItem
             button
             onClick={() =>
-              navigate("/dataAndAnalytics", { state: { user: user } })
+              navigate("/dataAndAnalytics")
             }
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
@@ -122,22 +123,22 @@ const Sidebar = ({ data }) => {
           </ListItem>
           <ListItem
             button
-            onClick={() => navigate("/wallet", { state: { user: user } })}
+            onClick={() => navigate("/wallet")}
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
               <Payment />
             </ListItemIcon>
             <ListItemText primary="Payment Information" />
-          </ListItem>
-          <ListItem
+          </ListItem> */}
+          {/* <ListItem
             button
-            onClick={() => navigate("/settings", { state: { user: user } })}
+            onClick={() => navigate("/settings")}
           >
             <ListItemIcon sx={{ color: "rgba(255, 255, 255, 0.4)" }}>
               <Settings />
             </ListItemIcon>
             <ListItemText primary="Settings" />
-          </ListItem>
+          </ListItem> */}
         </List>
         <ListItem
           button

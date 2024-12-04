@@ -10,10 +10,13 @@ import {
 import { IoLogoWhatsapp, IoCard } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import IpAddress from "../Config/IpAddress";
-import './SmallerComps/Spinner.css'
-import { AuthContext } from '../Contexts/AuthProvider';
-import { fetchWithAuth } from '../Services/fetchHelper'
-import { jwtDecode } from 'jwt-decode';
+import "./SmallerComps/Spinner.css";
+import { AuthContext } from "../Contexts/AuthProvider";
+import { fetchWithAuth } from "../Services/fetchHelper";
+import { jwtDecode } from "jwt-decode";
+import crypto from "../images/undraw_crypto_portfolio_2jy5.svg";
+
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -26,12 +29,12 @@ const Login = () => {
   const [err, setErr] = useState("");
   const { login, isAuthenticated } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (isAuthenticated) {
+  useEffect (() => {
+    if (isAuthenticated){
       navigate("/")
     }
-  }, [isAuthenticated, navigate]);
-  
+  }, [])
+
   useEffect(() => {
     const gridSpacing = 20; // The spacing for the grid pattern
 
@@ -91,9 +94,10 @@ const Login = () => {
         console.log("Login successful:", data);
         const token = data.accessToken;
         const decoded = jwtDecode(data.accessToken);
-        console.log('Decoded JWT:', decoded);
+        console.log("Decoded JWT:", decoded);
         if (data.accessToken) {
           login(data.accessToken);
+          navigate("/")
         } else {
           console.error(data.message);
         }
@@ -124,73 +128,61 @@ const Login = () => {
         </div>
       )}
       <div className="login-container">
-        <div
-          className="login-form"
-        >
-          <h2 style={{ fontWeight: "800", color: '#311d0090' }}>Welcome to WhatFlow Mentor!</h2>
-          <h3 style={{ fontWeight: "500", color: "#311d0090" }}>
-            Please sign in with your credentials
-          </h3>
-          {err && <p className="error-message">{err}</p>}
-          <form onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <div className="password-input-container">
+        <div className="login-form">
+          <div className="form-Holder">
+            <h2 style={{ fontWeight: "800", color: "white" }}>
+              Welcome to Dexpay
+            </h2>
+            <h3 style={{ fontWeight: "500", color: "white" }}>
+              Please sign in with your credentials
+            </h3>
+            {err && <p className="error-message">{err}</p>}
+            <form onSubmit={handleSubmit}>
               <input
-                type={passwordVisible ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <span
-                className="password-toggle-icon"
-                onClick={togglePasswordVisibility}
+              <div className="password-input-container">
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span
+                  className="password-toggle-icon"
+                  onClick={togglePasswordVisibility}
+                >
+                  {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+              <button
+                type="submit"
+                style={{
+                  backgroundColor: "#1e1e2e",
+                  width: "50%",
+                  borderRadius: "20px",
+                  color: "white"
+                }}
+                disabled={loading} // Disable the button when loading
               >
-                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-            <button
-              type="submit"
-              style={{
-                backgroundColor: "#311d00",
-                width: "50%",
-                borderRadius: "20px",
-              }}
-              disabled={loading} // Disable the button when loading
-            >
-              Sign In
+                Sign In
+              </button>
+            </form>
+            <p>Don't have an account ?</p>
+            <button className="signup-btn" onClick={() => navigate("/signup")}>
+              Register now
             </button>
-          </form>
-          <p>Don't have an account ?</p>
-          <button className="signup-btn" onClick={() => navigate("/signup")}>
-            Register now
-          </button>
+          </div>
         </div>
         <div className="signup-section">
           <div className="signup-content">
-            <h2 className="fancy-text">
-              Discover Seamless Event scheduling and Management
-            </h2>
-            <p>Handle payments for WhatsApp tutorials effortlessly.</p>
-            <p>
-              Focus on delivering quality content while we manage logistics.
-            </p>
+            <img src={crypto} className="crypto" />
           </div>
-          {positions.map((pos, index) => (
-            <div
-              key={index}
-              className={`icon ${pos.type}`}
-              style={{ top: `${pos.top}px`, left: `${pos.left}px` }}
-            >
-              {pos.type === "whatsapp" ? <IoLogoWhatsapp /> : <IoCard />}
-            </div>
-          ))}
         </div>
       </div>
     </div>

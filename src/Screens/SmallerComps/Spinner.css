@@ -27,8 +27,8 @@
   }
   
   .spinner {
-    border: 8px solid #f3f3f3;
-    border-top:8px solid #311d0045;
+    border: 4px solid #f3f3f3;
+    border-top:4px solid #0d0d0d;
     border-radius: 50%;
     width: 20px;
     height: 20px;
@@ -36,9 +36,9 @@
   }
 
   .backg{
-    height: 100px;
-    width: 100px;
-    background-color: #311d00;
+    height: 50px;
+    width: 50px;
+    background-color: #0d0d0d;
     border-radius: 10px;
     display: flex;
     justify-content: center;

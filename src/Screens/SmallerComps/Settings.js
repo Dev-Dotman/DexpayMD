@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Paper,
@@ -23,10 +23,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import IpAddress from "../../Config/IpAddress";
 import { LogoutOutlined } from "@mui/icons-material";
 import { fetchWithAuth } from '../../Services/fetchHelper'
+import { AuthContext } from "../../Contexts/AuthProvider";
 
 const Settings = () => {
   const location = useLocation();
-  const { user } = location.state || {};
+  const { user } = useContext(AuthContext);
   const ip = IpAddress.ip;
   const navigate = useNavigate();
   const [showEmailFields, setShowEmailFields] = useState(false);

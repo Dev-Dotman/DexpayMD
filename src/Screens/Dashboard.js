@@ -32,64 +32,92 @@ import {
   Money,
   Receipt,
 } from "@mui/icons-material";
-import { fetchWithAuth } from '../Services/fetchHelper'
-import { AuthContext } from '../Contexts/AuthProvider';
+import { fetchWithAuth } from "../Services/fetchHelper";
+import { AuthContext } from "../Contexts/AuthProvider";
 
-const DashboardContainer = styled(Box)({
-  display: "flex",
-  height: "100vh",
-});
-
-const ContentContainer = styled(Box)({
-  flexGrow: 1,
-  padding: "20px",
-});
-
-const EventSection = styled(Paper)({
-  padding: "20px",
-  marginBottom: "20px",
-});
-
-function Dashboard() {
+const supportedCurrencies = ["SOL"];
+function Dashboard({ navigation }) {
   const location = useLocation();
   // const { user } = location.state || { user: {} };
-  const { user } = useContext(AuthContext);
-  const [filter, setFilter] = useState("7d");
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [courses, setCourses] = useState([]);
+  const { user, cryptoRates, handleCryptoChange } = useContext(AuthContext);
+  const [filter, setFilter] = useState("R.T.D");
   const ip = IpAddress.ip;
-  const [events, setEvents] = useState([]);
   const [err, setErr] = useState("");
-  const [paymentDetails, setPaymentDetails] = useState({
-    accountNumber: "**** 3456 (USD)",
-    revenue: 54294,
-    currency: "USD",
+  const [paymentLinks, setPaymentLinks] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [currency, setCurrency] = useState(supportedCurrencies[0]);
+  const [revenueData, setRevenueData] = useState({
+    labels: [],
+    datasets: [],
   });
   const [notifications, setNotifications] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  const [revenueData, setRevenueData] = useState({
-    labels: Array(7)
-      .fill("")
-      .map((_, index) => `Day ${index + 1}`),
-    datasets: [
-      {
-        label: "Revenue",
-        data: Array(7).fill(0),
-        borderColor: "#031d1a88",
-        backgroundColor: "#031d1a", // Fill color under the line
-        fill: true, // Fill the area under the line
-        pointBackgroundColor: "#031d1a", // Point color
-        pointBorderColor: "#031d1a", // Point border color
-        pointHoverBackgroundColor: "rgba(75, 192, 192, 1)", // Point hover background color
-        pointHoverBorderColor: "rgba(220, 220, 220, 1)",
-      },
-    ],
-  });
+
   const [isMobileFiltersVisible, setIsMobileFiltersVisible] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
-  const [imageSrc2, setImageSrc2] = useState("");
 
+  const amountFiat = handleCryptoChange(totalRevenue);
+
+  const fetch_transactions = async (paymentLinkIds) => {
+    try {
+      const response = await fetch(`${ip}/fetchTransactions2`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ payment_link_ids: paymentLinkIds }), // Send an array of IDs
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        const latestTransactions = data.transactions; // Now fetched from all IDs
+        setTransactions(latestTransactions);
+        console.log(data.transactions);
+        setTotalRevenue(data.totalRevenue);
+        setRevenueData({
+          labels: data.revenueData.labels, // x-axis labels
+          datasets: [
+            {
+              label: "Revenue",
+              data: data.revenueData.datasets[0].data, // y-axis data
+              backgroundColor: "rgba(0, 128, 0, 0.3)", // Dark theme green
+              borderColor: "rgba(0, 255, 0, 1)", // Bright green for borders
+              borderWidth: 1,
+            },
+          ],
+        });
+      } else {
+        console.error("Failed to fetch transactions.");
+      }
+    } catch (error) {
+      console.error("An error occurred: " + error.message);
+    }
+  };
+
+  const fetchPaymentLinks = async (user) => {
+    try {
+      const response = await fetch(`${ip}/payment-links`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ merchant_id: user }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setPaymentLinks(data); // Store the payment links in state
+        const paymentLinkIds = data.map((link) => link.key); // Extract the IDs
+        fetch_transactions(paymentLinkIds); // Pass the IDs to fetch transactions
+      } else {
+        console.error("Failed to fetch payment links.");
+      }
+    } catch (error) {
+      console.error("An error occurred: " + error.message);
+    }
+  };
   useEffect(() => {
     const fetchImage = async () => {
       try {
@@ -118,31 +146,6 @@ function Dashboard() {
     fetchImage();
   }, [ip, user.imagePath]);
 
-  const fetchImage = async (imagePath) => {
-    try {
-      const response = await fetchWithAuth(`${ip}/get-image2`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ imagePath }),
-      });
-
-      if (response.ok) {
-        const imageBlob = await response.blob();
-        return URL.createObjectURL(imageBlob);
-      } else {
-        console.error("Failed to fetch image:", response.statusText);
-        setErr("Failed to fetch image");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching image:", error);
-      setErr("Error fetching image");
-      return null;
-    }
-  };
-
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -159,6 +162,7 @@ function Dashboard() {
         const data = await response.json();
         if (response.ok) {
           setNotifications(data.notifications);
+          fetchPaymentLinks(user.id);
         } else {
           setErr(data.error);
         }
@@ -191,56 +195,6 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetchWithAuth(`${ip}/myevents`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userEmail: user.email }), // Ensure correct format
-        });
-
-        const contentType = response.headers.get("content-type");
-
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          const data = await response.json();
-          console.log("Response Data:", data); // Log the JSON data
-
-          const sortedEvents = data.events.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
-          setEvents(sortedEvents.slice(0, 3));
-        } else {
-          const text = await response.text(); // Get raw response text
-          console.error("Non-JSON response:", text); // Log the non-JSON response
-          setErr("Received non-JSON response from server");
-          setEvents([]); // Ensure events is set to an empty array on error
-        }
-      } catch (error) {
-        console.error("Error fetching events:", error);
-        setErr("Failed to load events");
-        setEvents([]); // Ensure events is set to an empty array on error
-      }
-    };
-
-    fetchEvents();
-  }, [ip, user.email]);
-
-  useEffect(() => {
-    fetchCoursesData(filter);
-  }, [filter]);
-
-  const fetchCoursesData = (filter) => {
-    // Fetch courses data based on filter
-    // Replace with your API call
-    setCourses([
-      { id: 1, name: "Course 1", students: 120 },
-      { id: 2, name: "Course 2", students: 95 },
-    ]);
-  };
-
   const handleNotificationsClick = (event) => {
     setAnchorEl(event.currentTarget);
     const notificationIds = notifications.map(
@@ -253,199 +207,6 @@ function Dashboard() {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    const fetchRevenue = async () => {
-      try {
-        const response = await fetchWithAuth(`${ip}/user/revenue`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: user.email }), // Ensure correct format
-        });
-        const data = await response.json();
-        const transactions = data.transactions;
-
-        let labels = [];
-        let revenueValues = [];
-        let totalRevenue = 0;
-
-        if (transactions.length === 0) {
-          // If transactions array is empty, use default values
-          switch (filter) {
-            case "24h":
-              labels = Array(24)
-                .fill("")
-                .map((_, index) => `${index}:00`);
-              revenueValues = Array(24).fill(0);
-              break;
-            case "7d":
-              labels = Array(7)
-                .fill("")
-                .map((_, index) => `Day ${index + 1}`);
-              revenueValues = Array(7).fill(0);
-              break;
-            case "30d":
-              labels = Array(30)
-                .fill("")
-                .map((_, index) => `Day ${index + 1}`);
-              revenueValues = Array(30).fill(0);
-              break;
-            case "365d":
-              labels = Array(12)
-                .fill("")
-                .map((_, index) => `Month ${index + 1}`);
-              revenueValues = Array(12).fill(0);
-              break;
-            case "all":
-              labels = ["Year 1"];
-              revenueValues = [0];
-              break;
-            default:
-              break;
-          }
-        } else {
-          const now = new Date();
-          switch (filter) {
-            case "24h":
-              labels = Array(24)
-                .fill("")
-                .map((_, index) => `${index}:00`);
-              revenueValues = Array(24).fill(0);
-              transactions.forEach((transaction) => {
-                const date = new Date(transaction.date);
-                if (now - date <= 24 * 60 * 60 * 1000) {
-                  const hour = date.getHours();
-                  revenueValues[hour] += transaction.amount;
-                }
-              });
-              totalRevenue = revenueValues.reduce((acc, curr) => acc + curr, 0);
-              break;
-
-            case "7d":
-              labels = Array(7)
-                .fill("")
-                .map((_, index) => `Day ${index + 1}`);
-              revenueValues = Array(7).fill(0);
-              transactions.forEach((transaction) => {
-                const date = new Date(transaction.date);
-                if (now - date <= 7 * 24 * 60 * 60 * 1000) {
-                  const day = Math.floor((now - date) / (24 * 60 * 60 * 1000));
-                  revenueValues[6 - day] += transaction.amount;
-                }
-              });
-              totalRevenue = revenueValues.reduce((acc, curr) => acc + curr, 0);
-              break;
-
-            case "30d":
-              labels = Array(30)
-                .fill("")
-                .map((_, index) => `Day ${index + 1}`);
-              revenueValues = Array(30).fill(0);
-              transactions.forEach((transaction) => {
-                const date = new Date(transaction.date);
-                if (now - date <= 30 * 24 * 60 * 60 * 1000) {
-                  const day = Math.floor((now - date) / (24 * 60 * 60 * 1000));
-                  revenueValues[29 - day] += transaction.amount;
-                }
-              });
-              totalRevenue = revenueValues.reduce((acc, curr) => acc + curr, 0);
-              break;
-
-            case "365d":
-              labels = Array(12)
-                .fill("")
-                .map((_, index) => `Month ${index + 1}`);
-              revenueValues = Array(12).fill(0);
-              transactions.forEach((transaction) => {
-                const date = new Date(transaction.date);
-                if (now - date <= 365 * 24 * 60 * 60 * 1000) {
-                  const month = date.getMonth();
-                  revenueValues[month] += transaction.amount;
-                }
-              });
-              totalRevenue = revenueValues.reduce((acc, curr) => acc + curr, 0);
-              break;
-
-            case "all":
-              const years = new Set(
-                transactions.map((t) => new Date(t.date).getFullYear())
-              );
-              labels = Array.from(years)
-                .sort()
-                .map((year) => year.toString());
-              revenueValues = Array(years.size).fill(0);
-              transactions.forEach((transaction) => {
-                const date = new Date(transaction.date);
-                const year = date.getFullYear();
-                const index = labels.indexOf(year.toString());
-                revenueValues[index] += transaction.amount;
-              });
-              totalRevenue = revenueValues.reduce((acc, curr) => acc + curr, 0);
-              break;
-
-            default:
-              break;
-          }
-        }
-
-        setTotalRevenue(totalRevenue);
-        setRevenueData({
-          labels,
-          datasets: [
-            {
-              label: "Revenue",
-              data: revenueValues,
-              borderColor: "#031d1a88",
-              backgroundColor: "#031d1a", // Fill color under the line
-              fill: true, // Fill the area under the line
-              pointBackgroundColor: "#031d1a", // Point color
-              pointBorderColor: "#031d1a", // Point border color
-              pointHoverBackgroundColor: "rgba(75, 192, 192, 1)", // Point hover background color
-              pointHoverBorderColor: "rgba(220, 220, 220, 1)", // Point hover border color
-            },
-          ],
-        });
-      } catch (error) {
-        console.error("Error fetching revenue:", error);
-      }
-    };
-
-    fetchRevenue();
-  }, [user.email, filter, ip]);
-
-  const options = {
-    scales: {
-      x: {
-        grid: {
-          color: "rgba(0, 0, 0, 0.1)", // Change the grid line color for x-axis
-        },
-        ticks: {
-          color: "#031d1a", // Change the x-axis label color
-        },
-      },
-      y: {
-        grid: {
-          color: "rgba(0, 0, 0, 0.1)", // Change the grid line color for y-axis
-        },
-        ticks: {
-          color: "#031d1a", // Change the y-axis label color
-        },
-      },
-    },
-    plugins: {
-      legend: {
-        labels: {
-          color: "#031d1a", // Change the legend label color
-        },
-      },
-      title: {
-        display: true,
-        text: "Revenue Over Time",
-        color: "#031d1a", // Change the title color
-      },
-    },
-  };
   const handleFilterChange = (event) => {
     setFilter(event);
   };
@@ -458,20 +219,7 @@ function Dashboard() {
     <>
       <CssBaseline />
       <Box className="dashboard-container">
-        <Sidebar
-          data={{
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            nickname: user.nickname,
-            contact: user.contact,
-            imagePath: user.imagePath,
-            BankName: user.BankName,
-            BankAccountNo: user.BankAccountNo,
-            BankAccountName: user.BankAccountName,
-            BankCode: user.BankCode,
-          }}
-        />
+        <Sidebar />
         <div className="dashboard">
           <div className="dashboard-header">
             <div className="header-right">
@@ -495,7 +243,7 @@ function Dashboard() {
                   marginLeft: "10px",
                 }}
               >
-                Hello, {user.nickname}
+                {user.nickname}
               </Typography>
             </div>
             <Menu
@@ -518,8 +266,145 @@ function Dashboard() {
               ))}
             </Menu>
           </div>
+          <div>
+            <div
+              style={{
+                height: "300px",
+                backgroundColor: "#1e1e2e",
+                border: "2px solid #1e1e2e",
+                borderRadius: 10,
+                display: "flex",
+                justifyContent: "space-between",
+                padding: 20,
+              }}
+              className="shortcut"
+            >
+              <div
+                style={{
+                  width: "auto",
+                  backgroundColor: "transparent",
+                  borderRadius: 10,
+                  padding: "20px",
+                  display: "flex",
+                }}
+              >
+                <div
+                  style={{
+                    width: "250px",
+                    height: "200px",
+                    margin: "10px",
+                    backgroundColor: "rgba(0,0,0,0.4)",
+                    borderRadius: 10,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "20px",
+                  }}
+                  onClick={() => navigate("createevent")}
+                >
+                  <div
+                    style={{
+                      fontSize: "50px",
+                      color: "white",
+                      marginBottom: "10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ➕
+                  </div>
+                  <div
+                    style={{
+                      color: "white",
+                      fontSize: "18px",
+                      textAlign: "center",
+                    }}
+                  >
+                    New payment link
+                  </div>
+                </div>
+                {paymentLinks
+                  .slice(-4)
+                  .reverse()
+                  .map((link, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        margin: "10px",
+                        padding: "10px",
+                        border: "1px solid #90caf9",
+                        borderRadius: "5px",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                        height: "200px",
+                        width: "250px",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      onClick={() => navigate("manageevent")}
+                    >
+                      <h4
+                        style={{
+                          color: "#50fa7b",
+                        }}
+                      >
+                        {link.link_name}
+                      </h4>
+                      <h5>{link.description}</h5>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
 
-          <div className="dashboard-main">
+          <div className="transactions-container">
+            <h4 style={{ color: "#90caf9" }}>Latest Transactions</h4>
+            <div className="transactions-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Transaction Hash</th>
+                    <th>Amount Sent</th>
+                    <th>Payer Email</th>
+                    <th>module</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.length > 0 ? (
+                    transactions.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td>
+                          {transaction.transaction_hash
+                            ? transaction.transaction_hash.substring(
+                                0,
+                                window.innerWidth <= 768 ? 20 : 30
+                              )
+                            : ""}
+                          ....
+                        </td>
+                        <td>{transaction.amount} sol</td>
+                        <td>{transaction.payer_email}</td>
+                        <td>{transaction.payment_link_name}</td>
+                        <td>
+                          {new Date(transaction.created_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
+                        No transactions
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="chart-overview-container">
+            {/* Chart Container */}
             <div className="chart-container">
               <div className="header-left">
                 <FormControl variant="outlined" style={{ minWidth: 120 }}>
@@ -528,101 +413,120 @@ function Dashboard() {
                     value={filter}
                     onChange={(e) => handleFilterChange(e.target.value)}
                     className="filterLabel"
-                    style={{
-                      
+                    sx={{
+                      color: "#90caf9", // Changes the selected text color
+                      "& .MuiSvgIcon-root": {
+                        color: "#90caf9", // Customize the dropdown arrow
+                      },
+                      "& .MuiSelect-select": {
+                        "&.Mui-selected": {
+                          color: "green", // Changes the selected text in the dropdown menu
+                        },
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          "& .MuiMenuItem-root.Mui-selected": {
+                            backgroundColor: "lightblue", // Change the background of selected menu item
+                            color: "black", // Change the selected item text color
+                          },
+                        },
+                      },
                     }}
                   >
-                    <MenuItem value="24h" onClick={() => setFilter("24h")}>
-                      24 Hours
-                    </MenuItem>
-                    <MenuItem value="7d">7 Days</MenuItem>
-                    <MenuItem value="30d">30 Days</MenuItem>
-                    <MenuItem value="365d">365 Days</MenuItem>
-                    <MenuItem value="all">All Time</MenuItem>
+                    <MenuItem value="R.T.D">Retro Dynamic</MenuItem>
                   </Select>
                 </FormControl>
               </div>
-              <Line data={revenueData} options={options} className="lineChart"/>
-              <h4 style={{ color: "rgba(0, 0, 0, 0.3)" }}>Revenue Generated</h4>
+              <div style={{ height: "400px", width: "100%" }}>
+                <Line
+                  data={revenueData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                  }}
+                  className="lineChart"
+                />
+              </div>
+              <h4 style={{ color: "rgba(144, 202, 249, 0.7)" }}>
+                Revenue Generated
+              </h4>
               <Divider />
             </div>
+
+            {/* Overview Section */}
             <div className="overview">
               <div className="total-revenue">
-                <h4 style={{ color: "#031d1a" }}>
-                  Total Revenue <span>( NGN ) </span>
+                <h4 style={{ color: "#90caf9" }}>
+                  Total revenue <span>( Sol ) </span>
                 </h4>
-                <h1 style={{ color: "#031d1a" }}>
-                  {`${totalRevenue}`} <Money />
+
+                <h1 style={{ color: "#90caf9" }}>
+                  {totalRevenue.toFixed(6)} <Money />
                 </h1>
+                <h5 style={{ color: "#90caf9" }}>
+                  Currently valued at {amountFiat} naira
+                </h5>
               </div>
-              <div
+              {/* <div
                 className="payment-details"
                 style={{
-                  backgroundColor: "white",
-                  color: "#031d1a",
-                  boxShadow: "0 0 2px #031d1a",
+                  backgroundColor: "#1e1e1e",
+                  color: "#90caf9",
+                  boxShadow: "0 0 2px #90caf9",
                 }}
               >
-                <h4
-                  style={{
-                    color: "#031d1a",
-                  }}
-                >
-                  Payment Details{"  "}
-                  <Info
-                    sx={{
-                      fontSize: "13px",
-                    }}
-                  />
+                <h4 style={{ color: "#90caf9" }}>
+                  Wallet Address <Info sx={{ fontSize: "13px" }} />
                 </h4>
-                <p style={{ color: "#031d1a", fontWeight: "600" }}>
+                <p style={{ color: "#90caf9", fontWeight: "600" }}>
                   {user.BankAccountName}
                 </p>
-                <p
-                  style={{ color: "#031d1a", fontWeight: "600" }}
-                >{`Bank: ${user.BankName}`}</p>
-                <p
-                  style={{ color: "#031d1a", fontWeight: "600" }}
-                >{`Acc No: ${user.BankAccountNo}`}</p>
-              </div>
+                <p style={{ color: "#90caf9", fontWeight: "600" }}>
+                  {selectedPaymentLinkDetails.wallet_address
+                    ? selectedPaymentLinkDetails.wallet_address.substring(
+                        0,
+                        window.innerWidth <= 768 ? 20 : 30
+                      )
+                    : ""}
+                  ...
+                </p>
+              </div> */}
+              <h4 style={{ color: "#90caf9" }}>
+                {/* Wallet balance <span>( Sol ) </span> */}
+                NB: All payments are made to your solana wallet address
+              </h4>
             </div>
           </div>
 
-          <div className="dashboard-bottom-container">
-            <div className="courses-section">
-              <div className="courses-list">
-                <Typography
-                  variant="h6"
-                  align="center"
-                  sx={{ color: "#031d1a" }}
-                >
-                  Recent modules <CalendarMonth />
-                </Typography>
-                <Divider />
-
-                <Box className="events-grid">
-                  {events.length > 0 ? (
-                    events.map((event) => (
-                      <EventCard
-                        key={event.id}
-                        event={event}
-                        fetchImage={fetchImage}
-                        navigate={navigate}
-                      />
+          <div className="transactions-container2">
+            <div className="transactions-table2">
+              <h4 style={{ color: "#90caf9" }}>Latest Transactions</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Payer Email</th>
+                    <th>module</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.length > 0 ? (
+                    transactions.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td>{transaction.payer_email}</td>
+                        <td>{transaction.payment_link_name}</td>
+                      </tr>
                     ))
                   ) : (
-                    <Typography variant="body2" align="center">
-                      <GolfCourseOutlined
-                        sx={{
-                          fontSize: "100px",
-                          color: "#ff990059",
-                          marginTop: "20px",
-                        }}
-                      />
-                    </Typography>
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
+                        No transactions
+                      </td>
+                    </tr>
                   )}
-                </Box>
-              </div>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -630,90 +534,5 @@ function Dashboard() {
     </>
   );
 }
-
-const EventCard = ({ event, fetchImage, navigate }) => {
-  const [imageSrc2, setImageSrc2] = useState(null);
-
-  useEffect(() => {
-    if (event.coverPhoto) {
-      const loadImage = async () => {
-        const src = await fetchImage(event.coverPhoto);
-        setImageSrc2(src);
-      };
-      loadImage();
-    }
-  }, [event.coverPhoto, fetchImage]);
-
-  return (
-    <Card
-      key={event.id}
-      className="event-card"
-      sx={{
-        width: "400px",
-        borderRadius: "10px",
-        overflow: "hidden",
-        height: "180px",
-      }}
-    >
-      <Box
-        className="event-card-content"
-        sx={{
-          display: "block",
-          height: "180px",
-        }}
-      >
-        <img
-          src={imageSrc2}
-          alt="Event"
-          className="event-image"
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            left: 0,
-            top: 0,
-            zIndex: 0,
-            borderRadius: "none",
-            display: { xs: "none", md: "block" },
-          }}
-        />
-        <CardContent
-          className="event-details"
-          sx={{
-            zIndex: 10,
-            position: "absolute",
-            top: 0,
-            width: "100%",
-            backdropFilter: "blur(5px)",
-            height: "100%",
-            borderRadius: "none",
-            backgroundColor: "#031d1a88",
-            left: 0,
-            color: "white",
-          }}
-        >
-          <Typography variant="h6" className="small-text">
-            {event.courseTitle}
-          </Typography>
-          <Typography variant="body2" className="small-text">
-            Creator: {event.creator}
-          </Typography>
-          <Typography variant="body2" className="small-text">
-            Creator email: {event.creatorEmail}
-          </Typography>
-          <Typography
-            variant="body2"
-            className="small-text"
-            sx={{
-              color: "#ff9800",
-            }}
-          >
-            Course ID: {event.id}
-          </Typography>
-        </CardContent>
-      </Box>
-    </Card>
-  );
-};
 
 export default Dashboard;
