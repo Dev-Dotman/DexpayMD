@@ -1,70 +1,125 @@
-# Getting Started with Create React App
+DexPay - Merchant Payment Solution for Solana
+DexPay is a decentralized payment solution built on the Solana blockchain, empowering merchants with fast, secure, and low-cost payment processing. While still on the Solana testnet, DexPay is fully functional for baseline features, with additional enhancements coming soon.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🌟 Features
+For Merchants:
+Payment Requests: Generate and share payment links with customers.
+Transaction Dashboard: Track real-time payments and manage earnings.
+Wallet Integration: Currently supports Solana wallets with Phantom integration planned.
+Secure Payments: Backed by Solana's high-performance blockchain.
+For Customers:
+Fast Payments: Complete transactions using supported Solana wallets.
+Low Fees: Benefit from Solana's low transaction costs.
+Simple User Experience: Clean and intuitive payment flows.
+🚧 Project Status
+DexPay is operational on the Solana testnet, offering essential payment processing features. Deployment to the mainnet will follow once testing is complete and additional functionalities are integrated.
 
-## Available Scripts
+Completed:
+Rust Anchor-based smart contracts for payment processing.
+Backend API with Node.js and Express.
+Interactive React-based frontend.
+Basic merchant registration and payment functionality.
+In Progress:
+Integration with Phantom wallet.
+QR code payment system.
+🛠 Technologies
+Blockchain: Solana (Rust Anchor for smart contracts)
+Backend: Node.js, Express.js
+Frontend: React.js
+Database: MongoDB/PostgreSQL
+Wallets: Solana Wallet Adapter (Phantom integration pending)
+Deployment: Docker, AWS/GCP
+🛠 Getting Started
+Prerequisites
+Node.js (v14 or later)
+Rust and Anchor CLI (for Solana smart contracts)
+Solana CLI (configured for the testnet)
+Installation
+Backend Setup:
+Clone the repository:
 
-In the project directory, you can run:
+bash
+Copy code
+git clone https://github.com/your-username/dexpay.git
+cd dexpay
+Navigate to the backend folder:
 
-### `npm start`
+bash
+Copy code
+cd backend
+Install dependencies:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+bash
+Copy code
+npm install
+Set up environment variables in a .env file:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+env
+Copy code
+PORT=4000
+DATABASE_URL=your_database_url
+SOLANA_RPC_URL=https://api.testnet.solana.com
+ANCHOR_WALLET=/path/to/your/testnet-keypair.json
+Start the backend:
 
-### `npm test`
+bash
+Copy code
+npm run dev
+Frontend Setup:
+Navigate to the frontend folder:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+bash
+Copy code
+cd frontend
+Install dependencies:
 
-### `npm run build`
+bash
+Copy code
+npm install
+Start the frontend:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+bash
+Copy code
+npm start
+Smart Contracts:
+Ensure Rust and Anchor CLI are installed and configured.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Navigate to the Solana program folder:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+bash
+Copy code
+cd solana-program
+Build and deploy the program:
 
-### `npm run eject`
+bash
+Copy code
+anchor build
+anchor deploy --provider.cluster testnet
+💡 Usage
+Access the application at http://localhost:3000 (or your deployed testnet URL).
+Register as a merchant and set up your wallet.
+Create payment requests and share them with customers.
+Test transactions using Solana testnet wallets.
+📅 Roadmap
+ Basic payment processing.
+ Phantom wallet integration.
+ QR code payment system.
+ Deployment to the Solana mainnet.
+🤝 Contributing
+Contributions are welcome! If you’d like to help, follow these steps:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Fork the repository.
+Create a new branch:
+bash
+Copy code
+git checkout -b feature/your-feature
+Commit your changes and push:
+bash
+Copy code
+git push origin feature/your-feature
+Submit a pull request.
+📜 License
+DexPay is licensed under the MIT License.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+🛠 Support
+For questions or feedback, reach out to us at support@dexpay.com.
