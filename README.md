@@ -40,15 +40,8 @@ Clone the repository:
 
 bash
 Copy code
-git clone https://github.com/your-username/dexpay.git
+git clone https://github.com/Dev-Dotman/DexpayMD.git
 cd dexpay
-
-env
-Copy code
-PORT=4000
-DATABASE_URL=your_database_url
-SOLANA_RPC_URL=https://api.testnet.solana.com
-ANCHOR_WALLET=/path/to/your/testnet-keypair.json
 
 bash
 Copy code
