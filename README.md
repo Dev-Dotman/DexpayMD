@@ -42,17 +42,6 @@ bash
 Copy code
 git clone https://github.com/your-username/dexpay.git
 cd dexpay
-Navigate to the backend folder:
-
-bash
-Copy code
-cd backend
-Install dependencies:
-
-bash
-Copy code
-npm install
-Set up environment variables in a .env file:
 
 env
 Copy code
@@ -60,7 +49,6 @@ PORT=4000
 DATABASE_URL=your_database_url
 SOLANA_RPC_URL=https://api.testnet.solana.com
 ANCHOR_WALLET=/path/to/your/testnet-keypair.json
-Start the backend:
 
 bash
 Copy code
@@ -70,7 +58,6 @@ Navigate to the frontend folder:
 
 bash
 Copy code
-cd frontend
 Install dependencies:
 
 bash
@@ -78,23 +65,6 @@ Copy code
 npm install
 Start the frontend:
 
-bash
-Copy code
-npm start
-Smart Contracts:
-Ensure Rust and Anchor CLI are installed and configured.
-
-Navigate to the Solana program folder:
-
-bash
-Copy code
-cd solana-program
-Build and deploy the program:
-
-bash
-Copy code
-anchor build
-anchor deploy --provider.cluster testnet
 💡 Usage
 Access the application at http://localhost:3000 (or your deployed testnet URL).
 Register as a merchant and set up your wallet.
