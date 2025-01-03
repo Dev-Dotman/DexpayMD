@@ -268,7 +268,7 @@ const Signup = () => {
                   }}
                 />
                 <p>
-                  By creating your account you agree to Whatflow's{" "}
+                  By creating your account you agree to Dexpay's{" "}
                   <a href="/terms">Terms & Conditions</a> and{" "}
                   <a href="/privacy">Privacy Policy</a>.
                 </p>

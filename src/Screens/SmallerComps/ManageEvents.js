@@ -364,7 +364,7 @@ const ManageEvents = ({ route }) => {
                       </h4>
 
                       <h1 style={{ color: "#90caf9" }}>
-                        {totalRevenue.toFixed(6)} <Money />
+                        {totalRevenue? totalRevenue.toFixed(6) : 0} <Money />
                       </h1>
                       <h5 style={{ color: "#90caf9" }}>
                         Currently valued at {amountFiat} naira

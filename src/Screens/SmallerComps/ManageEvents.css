@@ -7,7 +7,7 @@
   right: 0;
   width: 85%;
   background-color: #2a2a3b;
-  overflow-x: hidden;
+  overflow-x: scroll;
 }
 
 .moduleHolder {
