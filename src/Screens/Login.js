@@ -137,13 +137,14 @@ const Login = () => {
               Please sign in with your credentials
             </h3>
             {err && <p className="error-message">{err}</p>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="lg_form">
               <input
                 type="email"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="email_input"
               />
               <div className="password-input-container">
                 <input
@@ -152,6 +153,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="password_input"
                 />
                 <span
                   className="password-toggle-icon"

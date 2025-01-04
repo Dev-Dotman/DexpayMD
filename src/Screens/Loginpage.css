@@ -404,6 +404,15 @@ button:hover {
     margin-top: 0;
   }
 
+  .lg_form{
+    width: 80%;
+    align-items: center;
+  }
+
+  .email_input{
+    width: 100%;
+  }
+
   .password-input-container {
     width: 80%;
     display: flex;
